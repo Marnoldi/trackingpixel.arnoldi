@@ -1,0 +1,109 @@
+html
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>trackingarnoldi</title>
+    <style>
+        /* 기존 레이아웃 스타일 정의 */
+        body { 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            background: #222272; 
+            margin: 0; 
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 { font-size: 1.5rem; color: #1a1a1a; margin-bottom: 5px; }
+        .subtitle { color: #666; margin-bottom: 25px; font-size: 0.95rem; }
+        
+        /* 1x1 픽셀을 크게 보여주기 위한 뷰어 박스 디자인 */
+        .pixel-display { 
+            width: 150px; 
+            height: 150px; 
+            margin: 20px auto; 
+            border: 2px solid #ccc; 
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1); 
+            /* 배경 격자무늬 (투명 픽셀인 경우를 대비한 투명도 배경) */
+            background-image: linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%); 
+            background-size: 20px 20px; 
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px; 
+        }
+        .pixel-color { width: 100%; height: 100%; transition: background-color 0.3s ease; }
+        .info { margin-top: 15px; font-weight: bold; color: #333; font-size: 0.9rem; }
+        input[type="file"] { margin-top: 10px; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 요청하신 원래 본문 내용 -->
+    <h1>Megapropodiphora arnoldi particle</h1>
+    <p class="subtitle">GitHub Pages로 만든 첫 arnoldi입니다.</p>
+    
+    <hr style="border: 0; height: 1px; background: #eee; margin-bottom: 20px;">
+
+    <!-- 파일 업로드 및 분석 영역 -->
+    <p style="margin-bottom: 10px; font-size: 0.9rem;">분석할 .arnoldi 파일을 선택하세요.</p>
+    <input type="file" id="fileInput" accept=".arnoldi">
+    
+    <div class="pixel-display">
+        <div id="pixelColor" class="pixel-color"></div>
+    </div>
+    
+    <div id="hexInfo" class="info">파일을 선택해 주세요.</div>
+</div>
+
+<script>
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const buffer = evt.target.result;
+            const view = new DataView(buffer);
+            
+            // 3바이트(RGB) 구조 분석
+            if (buffer.byteLength >= 3) {
+                const r = view.getUint8(0);
+                const g = view.getUint8(1);
+                const b = view.getUint8(2);
+                
+                // 16진수 헥스코드 문자열로 변환 (예: #FF0000)
+                const hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+                
+                // 화면에 감지된 색상 반영 및 텍스트 출력
+                document.getElementById('pixelColor').style.backgroundColor = hex;
+                document.getElementById('hexInfo').innerHTML = `감지된 색상: <span style="color:${hex}">${hex}</span><br>(${buffer.byteLength} 바이트)`;
+            } else {
+                document.getElementById('hexInfo').innerText = "올바른 .arnoldi 파일이 아닙니다. (최소 3바이트 필요)";
+            }
+        };
+        
+        // 파일을 바이너리(ArrayBuffer) 형태로 읽기 수행
+        reader.readAsArrayBuffer(file);
+    });
+</script>
+
+</body>
+</html>
+
+코드를 사용할 때는 주의가 필요합니다.
