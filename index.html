@@ -1,5 +1,3 @@
-html
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -7,7 +5,7 @@ html
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>trackingarnoldi</title>
     <style>
-        /* 기존 레이아웃 스타일 정의 */
+        /* 기존 레이아웃 스타일 유지 */
         body { 
             font-family: sans-serif; 
             display: flex; 
@@ -49,19 +47,39 @@ html
         .pixel-color { width: 100%; height: 100%; transition: background-color 0.3s ease; }
         .info { margin-top: 15px; font-weight: bold; color: #333; font-size: 0.9rem; }
         input[type="file"] { margin-top: 10px; font-size: 0.85rem; }
+
+        /* 새로 추가된 샘플 생성기 스타일 */
+        .section-title { font-size: 1.1rem; color: #1a1a1a; margin-top: 10px; margin-bottom: 8px; font-weight: bold; }
+        .btn { background: #222272; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; margin-top: 12px; width: 100%; font-weight: bold; transition: background 0.2s; }
+        .btn:hover { background: #15154e; }
+        .color-picker-wrapper { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; }
+        input[type="color"] { border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; padding: 0; background: none; }
+        .divider { border: 0; height: 1px; background: #eee; margin: 25px 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- 요청하신 원래 본문 내용 -->
-    <h1>Megapropodiphora arnoldi particle</h1>
+    <!-- 기본 상단 텍스트 -->
+    <h1>🪰︎Megapropodiphora arnoldi particle🪰︎</h1>
     <p class="subtitle">arnoldi 확장자를 업로드하세요...</p>
     
     <hr style="border: 0; height: 1px; background: #eee; margin-bottom: 20px;">
 
-    <!-- 파일 업로드 및 분석 영역 -->
-    <p style="margin-bottom: 10px; font-size: 0.9rem;">분석할 .arnoldi 파일을 선택하세요.</p>
+    <!-- [영역 1] 샘플 파일 생성기 -->
+    <div class="section-title"> 1. 샘플 파일 생성기</div>
+    <p style="font-size: 0.85rem; color: #666; margin: 0;">색상을 선택하고 .arnoldi 파일로 내보내세요.</p>
+    <div class="color-picker-wrapper">
+        <input type="color" id="sampleColor" value="#FF0000">
+        <span id="colorHexText" style="font-weight: bold; font-family: monospace; font-size: 1rem;">#FF0000</span>
+    </div>
+    <button class="btn" id="downloadBtn">sample.arnoldi 다운로드</button>
+
+    <div class="divider"></div>
+
+    <!-- [영역 2] 파일 분석기 (뷰어) -->
+    <div class="section-title">🪰︎ 2. 파일 분석기 (뷰어)</div>
+    <p style="margin-bottom: 10px; font-size: 0.85rem; color: #666;">분석할 .arnoldi 파일을 선택하세요.</p>
     <input type="file" id="fileInput" accept=".arnoldi">
     
     <div class="pixel-display">
@@ -72,6 +90,47 @@ html
 </div>
 
 <script>
+    // --- [기능 1] 샘플 파일 생성 및 바이너리 다운로드 기능 ---
+    const sampleColorInput = document.getElementById('sampleColor');
+    const colorHexText = document.getElementById('colorHexText');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    // 색상 선택창 값 변경 시 텍스트 실시간 반영
+    sampleColorInput.addEventListener('input', function() {
+        colorHexText.innerText = this.value.toUpperCase();
+    });
+
+    // 다운로드 버튼 클릭 시 3바이트 바이너리 파일 생성
+    downloadBtn.addEventListener('click', function() {
+        // #기호 제거 후 헥스값만 추출
+        const hex = sampleColorInput.value.substring(1);
+        
+        // 16진수 문자열을 각각 R, G, B 숫자로 변환
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        
+        // 3바이트짜리 순수 바이너리 데이터 배열(Uint8Array) 구조 정의
+        const byteArray = new Uint8Array([r, g, b]);
+        
+        // 다운로드를 위한 가상 파일 Blob 객체 생성
+        const blob = new Blob([byteArray], { type: "application/octet-stream" });
+        const url = URL.createObjectURL(blob);
+        
+        // 브라우저 강제 다운로드 처리
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = "sample.arnoldi";
+        document.body.appendChild(a);
+        a.click();
+        
+        // 다운로드 후 가상 링크 오브젝트 메모리 해제
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+
+    // --- [기능 2] 파일 분석기 (기존 코드 기능 유지 및 강화) ---
     document.getElementById('fileInput').addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
@@ -81,7 +140,7 @@ html
             const buffer = evt.target.result;
             const view = new DataView(buffer);
             
-            // 3바이트(RGB) 구조 분석
+            // 3바이트(RGB) 구조 분석 구현
             if (buffer.byteLength >= 3) {
                 const r = view.getUint8(0);
                 const g = view.getUint8(1);
@@ -90,7 +149,7 @@ html
                 // 16진수 헥스코드 문자열로 변환 (예: #FF0000)
                 const hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
                 
-                // 화면에 감지된 색상 반영 및 텍스트 출력
+                // 화면에 감지된 색상 반영 및 결과 출력
                 document.getElementById('pixelColor').style.backgroundColor = hex;
                 document.getElementById('hexInfo').innerHTML = `감지된 색상: <span style="color:${hex}">${hex}</span><br>(${buffer.byteLength} 바이트)`;
             } else {
@@ -105,5 +164,3 @@ html
 
 </body>
 </html>
-
-코드를 사용할 때는 주의가 필요합니다.
